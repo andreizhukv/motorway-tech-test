@@ -6,5 +6,5 @@ import { IsEnum, IsOptional } from 'class-validator';
 export class UpdateVehicleDto extends PartialType(CreateVehicleDto) {
   @IsOptional()
   @IsEnum(VehicleStateEnum)
-  state: VehicleStateEnum;
+  state?: VehicleStateEnum;
 }
