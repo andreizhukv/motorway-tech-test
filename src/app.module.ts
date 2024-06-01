@@ -1,20 +1,27 @@
 import { Module } from '@nestjs/common';
 import { VehicleModule } from './vehicle/vehicle.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import configuration, { Config } from './config/configuration';
+import { getTypeOrmConfig } from './config/typeorm';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'user',
-      password: 'password',
-      database: 'motorway',
-      // entities: [],
-      // turn on only in development mode
-      synchronize: true,
-      autoLoadEntities: true,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+      envFilePath: `.env.${process.env.NODE_ENV || 'local'}`,
+      // validationSchema: EnvironmentVariables,
+      // validationOptions: {
+      //   allowUnknown: false,
+      //   abortEarly: true,
+      // },
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService<Config, true>) =>
+        getTypeOrmConfig(configService),
+      inject: [ConfigService],
     }),
     VehicleModule,
   ],
