@@ -243,25 +243,5 @@ describe('VehicleService', () => {
         NotFoundException,
       );
     });
-
-    it('should throw NotFoundException if no state logs found before the timestamp', async () => {
-      const vehicle = new Vehicle();
-      vehicle.stateLogs = [];
-
-      const queryBuilder: any = {
-        leftJoinAndSelect: jest.fn().mockReturnThis(),
-        where: jest.fn().mockReturnThis(),
-        andWhere: jest.fn().mockReturnThis(),
-        orderBy: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockReturnThis(),
-        getOne: jest.fn().mockResolvedValue(vehicle),
-      };
-
-      mockVehicleRepository.createQueryBuilder.mockReturnValue(queryBuilder);
-
-      await expect(service.findStateLog(1, new Date())).rejects.toThrow(
-        NotFoundException,
-      );
-    });
   });
 });

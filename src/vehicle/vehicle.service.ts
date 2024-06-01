@@ -84,13 +84,9 @@ export class VehicleService {
       .getOne();
 
     if (!vehicle)
-      throw new NotFoundException(`Vehicle with ID ${id} not found`);
-
-    if (vehicle.stateLogs.length === 0) {
       throw new NotFoundException(
-        `Vehicle with ID ${id} does not exist on ${timestamp}`,
+        `Vehicle with ID ${id} not found on ${timestamp}.`,
       );
-    }
 
     vehicle.state = vehicle.stateLogs[0].state;
 

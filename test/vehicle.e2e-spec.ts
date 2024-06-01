@@ -206,19 +206,28 @@ describe('VehicleController (e2e)', () => {
         dateAfterCreate.getTime() - hourInMs,
       );
 
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .get(`/vehicle/${createdVehicle.id}/state-log`)
         .query({ timestamp: timestampBeforeCreate })
         .expect(404);
+
+      expect(response.body.message).toEqual(
+        `Vehicle with ID ${createdVehicle.id} not found on ${timestampBeforeCreate}.`,
+      );
     });
 
     it('should return 404 if vehicle not found', async () => {
       const nonExistentId = 999999; // An ID that is unlikely to exist
 
-      await request(app.getHttpServer())
+      const date = new Date();
+      const response = await request(app.getHttpServer())
         .get(`/vehicle/${nonExistentId}/state-log`)
-        .query({ timestamp: new Date().toISOString() })
+        .query({ timestamp: date.toISOString() })
         .expect(404);
+
+      expect(response.body.message).toEqual(
+        `Vehicle with ID ${nonExistentId} not found on ${date}.`,
+      );
     });
   });
 });
