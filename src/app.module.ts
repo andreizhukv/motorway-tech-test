@@ -11,6 +11,7 @@ import { getTypeOrmConfig } from './config/typeorm';
       isGlobal: true,
       load: [configuration],
       envFilePath: `.env.${process.env.NODE_ENV || 'local'}`,
+      // cool thing to validate config on startup
       // validationSchema: EnvironmentVariables,
       // validationOptions: {
       //   allowUnknown: false,
