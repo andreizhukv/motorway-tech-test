@@ -17,6 +17,6 @@ export const getTypeOrmConfig = (
     password,
     database,
     entities: [__dirname + '/../**/*.entity.{js,ts}'],
-    synchronize: env === Environment.Local,
+    synchronize: env === Environment.Local || env === Environment.Test,
   };
 };

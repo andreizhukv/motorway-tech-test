@@ -2,15 +2,15 @@ version: '3.8'
 services:
   postgres:
     image: postgres:14
-    container_name: motorway-test-backend
+    container_name: motorway-e2e-test-backend
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=motorway
     ports:
-      - 5432:5432
+      - "5433:5432" # Different port to avoid conflict with development DB
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - test_pgdata:/var/lib/postgresql/data
 
 volumes:
-  pgdata:
+  test_pgdata:
