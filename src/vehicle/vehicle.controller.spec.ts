@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { VehicleController } from './vehicle.controller';
 import { VehicleService } from './vehicle.service';
-import { CreateVehicleDto } from './dto/create-vehicle.dto';
+import { CreateVehicleDto } from './dtos/create-vehicle.dto';
 import { Vehicle } from './entities/vehicle.entity';
-import { FindOneParams } from './params/find-one.params';
-import { UpdateVehicleDto } from './dto/update-vehicle.dto';
+import { FindOneParams } from './dtos/find-one.params';
+import { UpdateVehicleDto } from './dtos/update-vehicle.dto';
 import { VehicleStateEnum } from './types/VehicleStateEnum';
-import { FindStateLogQuery } from './queries/find-state-log.query';
+import { FindStateLogQuery } from './dtos/find-state-log.query';
 
 describe('VehicleController', () => {
   let controller: VehicleController;
@@ -69,7 +69,7 @@ describe('VehicleController', () => {
     it('should return a single vehicle', async () => {
       const vehicleId = 1;
       const vehicle = new Vehicle();
-      const params: FindOneParams = { id: vehicleId };
+      const params: FindOneParams = { id: `${vehicleId}` };
       mockVehicleService.findOne.mockResolvedValue(vehicle);
 
       expect(await controller.findOne(params)).toBe(vehicle);
@@ -86,7 +86,7 @@ describe('VehicleController', () => {
       };
       const vehicle = new Vehicle();
       const vehicleId = 1;
-      const params: FindOneParams = { id: vehicleId };
+      const params: FindOneParams = { id: `${vehicleId}` };
       mockVehicleService.update.mockResolvedValue(vehicle);
 
       expect(await controller.update(params, updateVehicleDto)).toBe(vehicle);
@@ -101,7 +101,7 @@ describe('VehicleController', () => {
     it('should return a state log of a vehicle', async () => {
       const vehicleId = 1;
       const vehicle = new Vehicle();
-      const params: FindOneParams = { id: vehicleId };
+      const params: FindOneParams = { id: `${vehicleId}` };
       const date = new Date();
       const query: FindStateLogQuery = { timestamp: date.toISOString() };
       mockVehicleService.findStateLog.mockResolvedValue(vehicle);

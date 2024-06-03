@@ -3,10 +3,10 @@ import { VehicleService } from './vehicle.service';
 import { Vehicle } from './entities/vehicle.entity';
 import { StateLog } from './entities/state-log.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { CreateVehicleDto } from './dto/create-vehicle.dto';
+import { CreateVehicleDto } from './dtos/create-vehicle.dto';
 import { NotFoundException } from '@nestjs/common';
 import { VehicleStateEnum } from './types/VehicleStateEnum';
-import { UpdateVehicleDto } from './dto/update-vehicle.dto';
+import { UpdateVehicleDto } from './dtos/update-vehicle.dto';
 
 describe('VehicleService', () => {
   let service: VehicleService;
