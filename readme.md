@@ -50,6 +50,8 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+The fastest option to do manual testing is by importing postman collection from test folder.
+
 ## Some explanations and reasoning
 
 - I decided to discard provided database and start fresh with typeorm. Leveraging typeorm synchronise option in local development was faster and easier for me. Synchronise has to be disabled in non local envs and we have to rely on migrations.
