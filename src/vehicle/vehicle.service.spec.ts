@@ -119,8 +119,11 @@ describe('VehicleService', () => {
 
     it('should throw NotFoundException if vehicle not found', async () => {
       mockVehicleRepository.findOneBy.mockReturnValue(undefined);
+      const id = 1;
 
-      await expect(service.findOne(1)).rejects.toThrow(NotFoundException);
+      await expect(service.findOne(id)).rejects.toThrow(
+        new NotFoundException(`Vehicle with ID ${id} not found`),
+      );
     });
   });
 
@@ -197,10 +200,13 @@ describe('VehicleService', () => {
 
     it('should throw NotFoundException if vehicle not found', async () => {
       mockVehicleRepository.findOneBy.mockReturnValue(undefined);
+      const id = 1;
 
       await expect(
-        service.update(1, { make: 'BMW', state: VehicleStateEnum.Selling }),
-      ).rejects.toThrow(NotFoundException);
+        service.update(id, { make: 'BMW', state: VehicleStateEnum.Selling }),
+      ).rejects.toThrow(
+        new NotFoundException(`Vehicle with ID ${id} not found`),
+      );
     });
   });
 
@@ -238,9 +244,13 @@ describe('VehicleService', () => {
       };
 
       mockVehicleRepository.createQueryBuilder.mockReturnValue(queryBuilder);
+      const currentDate = new Date();
+      const id = 1;
 
-      await expect(service.findStateLog(1, new Date())).rejects.toThrow(
-        NotFoundException,
+      await expect(service.findStateLog(id, currentDate)).rejects.toThrow(
+        new NotFoundException(
+          `Vehicle with ID ${id} not found on ${currentDate}.`,
+        ),
       );
     });
   });

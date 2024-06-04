@@ -73,19 +73,19 @@ export class VehicleService {
     );
   }
 
-  async findStateLog(id: number, timestamp: Date): Promise<Vehicle> {
+  async findStateLog(id: number, date: Date): Promise<Vehicle> {
     const vehicle = await this.vehiclesRepository
       .createQueryBuilder('vehicle')
       .leftJoinAndSelect('vehicle.stateLogs', 'stateLog')
       .where('vehicle.id = :id', { id })
-      .andWhere('stateLog.timestamp <= :timestamp', { timestamp })
+      .andWhere('stateLog.timestamp <= :date', { date })
       .orderBy('stateLog.timestamp', 'DESC')
       .limit(1)
       .getOne();
 
     if (!vehicle)
       throw new NotFoundException(
-        `Vehicle with ID ${id} not found on ${timestamp}.`,
+        `Vehicle with ID ${id} not found on ${date}.`,
       );
 
     vehicle.state = vehicle.stateLogs[0].state;
