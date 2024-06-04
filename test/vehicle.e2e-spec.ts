@@ -37,59 +37,101 @@ describe('VehicleController (e2e)', () => {
       expect(response.body).toHaveProperty('id');
       expect(response.body.make).toEqual(createVehicleDto.make);
       expect(response.body.model).toEqual(createVehicleDto.model);
+      expect(response.body.state).toEqual(VehicleStateEnum.Quoted);
     });
 
     it('should return 400 if make is missing', async () => {
       const createVehicleDto = {
         model: 'X5',
       };
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/vehicle')
         .send(createVehicleDto)
         .expect(400);
-      // TODO - add error message as well
+      expect(response.body.message).toContain('make should not be empty');
+    });
+
+    it('should return 400 if make is not string', async () => {
+      const createVehicleDto = {
+        model: 'X5',
+        make: 123,
+      };
+      const response = await request(app.getHttpServer())
+        .post('/vehicle')
+        .send(createVehicleDto)
+        .expect(400);
+      expect(response.body.message).toContain('make must be a string');
+    });
+
+    it('should return 400 if make is empty string', async () => {
+      const createVehicleDto = {
+        model: 'X5',
+        make: '',
+      };
+      const response = await request(app.getHttpServer())
+        .post('/vehicle')
+        .send(createVehicleDto)
+        .expect(400);
+      expect(response.body.message).toContain('make should not be empty');
     });
 
     it('should return 400 if model is missing', async () => {
       const createVehicleDto = {
         make: 'BMW',
       };
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/vehicle')
         .send(createVehicleDto)
         .expect(400);
-    });
-
-    it('should return 400 if make is not string', async () => {
-      const createVehicleDto = {
-        make: 123,
-        model: 'X5',
-      };
-      await request(app.getHttpServer())
-        .post('/vehicle')
-        .send(createVehicleDto)
-        .expect(400);
+      expect(response.body.message).toContain('model should not be empty');
     });
 
     it('should return 400 if model is not string', async () => {
       const createVehicleDto = {
         make: 'BMW',
-        model: 456456.35,
+        model: 123,
       };
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/vehicle')
         .send(createVehicleDto)
         .expect(400);
+      expect(response.body.message).toContain('model must be a string');
+    });
+
+    it('should return 400 if model is empty string', async () => {
+      const createVehicleDto = {
+        model: '',
+        make: 'bla',
+      };
+      const response = await request(app.getHttpServer())
+        .post('/vehicle')
+        .send(createVehicleDto)
+        .expect(400);
+      expect(response.body.message).toContain('model should not be empty');
     });
   });
 
   describe('/vehicle (GET)', () => {
     it('should return an array of vehicles', async () => {
+      await request(app.getHttpServer())
+        .post('/vehicle')
+        .send({
+          make: 'BMW',
+          model: 'X5',
+        })
+        .expect(201);
+
       const response = await request(app.getHttpServer())
         .get('/vehicle')
         .expect(200);
 
+      // it can be improved once response is sorted by date created and pagination implemented
       expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length > 0).toBe(true);
+      expect(response.body[0].make).toBeDefined();
+      expect(response.body[0].model).toBeDefined();
+      expect(response.body[0].state).toBeDefined();
+      expect(response.body[0].id).toBeDefined();
     });
   });
 
@@ -111,6 +153,7 @@ describe('VehicleController (e2e)', () => {
       expect(response.body.id).toBe(createdVehicle.id);
       expect(response.body.make).toBe(createVehicleDto.make);
       expect(response.body.model).toBe(createVehicleDto.model);
+      expect(response.body.state).toBe(VehicleStateEnum.Quoted);
     });
   });
 
@@ -128,7 +171,7 @@ describe('VehicleController (e2e)', () => {
       const updateVehicleDto = {
         make: 'Volve',
         model: 'CX40',
-        state: 'sold',
+        state: VehicleStateEnum.Sold,
       };
 
       const response = await request(app.getHttpServer())
@@ -139,6 +182,156 @@ describe('VehicleController (e2e)', () => {
       expect(response.body.make).toBe(updateVehicleDto.make);
       expect(response.body.model).toBe(updateVehicleDto.model);
       expect(response.body.state).toBe(updateVehicleDto.state);
+    });
+
+    it.each([
+      {
+        updateVehicleDto: { model: 'BMW' },
+        field: 'model',
+      },
+      {
+        updateVehicleDto: { make: 'X5' },
+        field: 'make',
+      },
+      {
+        updateVehicleDto: { state: VehicleStateEnum.Sold },
+        field: 'state',
+      },
+    ])(
+      'should allow update with only $field present',
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      async ({ updateVehicleDto, field }) => {
+        const createVehicleDto = {
+          make: 'Audi',
+          model: 'Q7',
+        };
+        const { body: createdVehicle } = await request(app.getHttpServer())
+          .post('/vehicle')
+          .send(createVehicleDto)
+          .expect(201);
+
+        await request(app.getHttpServer())
+          .patch(`/vehicle/${createdVehicle.id}`)
+          .send(updateVehicleDto)
+          .expect(200);
+      },
+    );
+
+    it('should return 400 if make is not string', async () => {
+      const createVehicleDto = {
+        make: 'Tesla',
+        model: 'Model S',
+      };
+      const { body: createdVehicle } = await request(app.getHttpServer())
+        .post('/vehicle')
+        .send(createVehicleDto)
+        .expect(201);
+
+      const updateVehicleDto = {
+        make: 234,
+        model: 'CX40',
+        state: VehicleStateEnum.Sold,
+      };
+
+      const response = await request(app.getHttpServer())
+        .patch(`/vehicle/${createdVehicle.id}`)
+        .send(updateVehicleDto)
+        .expect(400);
+      expect(response.body.message).toContain('make must be a string');
+    });
+
+    it('should return 400 if make is empty string', async () => {
+      const createVehicleDto = {
+        make: 'Tesla',
+        model: 'Model S',
+      };
+      const { body: createdVehicle } = await request(app.getHttpServer())
+        .post('/vehicle')
+        .send(createVehicleDto)
+        .expect(201);
+
+      const updateVehicleDto = {
+        make: '',
+        model: 'CX40',
+        state: VehicleStateEnum.Sold,
+      };
+
+      const response = await request(app.getHttpServer())
+        .patch(`/vehicle/${createdVehicle.id}`)
+        .send(updateVehicleDto)
+        .expect(400);
+      expect(response.body.message).toContain('make should not be empty');
+    });
+
+    it('should return 400 if model is not string', async () => {
+      const createVehicleDto = {
+        make: 'Tesla',
+        model: 'Model S',
+      };
+      const { body: createdVehicle } = await request(app.getHttpServer())
+        .post('/vehicle')
+        .send(createVehicleDto)
+        .expect(201);
+
+      const updateVehicleDto = {
+        make: 'Fiat',
+        model: 2,
+        state: VehicleStateEnum.Sold,
+      };
+
+      const response = await request(app.getHttpServer())
+        .patch(`/vehicle/${createdVehicle.id}`)
+        .send(updateVehicleDto)
+        .expect(400);
+      expect(response.body.message).toContain('model must be a string');
+    });
+
+    it('should return 400 if model is empty string', async () => {
+      const createVehicleDto = {
+        make: 'Tesla',
+        model: 'Model S',
+      };
+      const { body: createdVehicle } = await request(app.getHttpServer())
+        .post('/vehicle')
+        .send(createVehicleDto)
+        .expect(201);
+
+      const updateVehicleDto = {
+        make: '123',
+        model: '',
+        state: VehicleStateEnum.Sold,
+      };
+
+      const response = await request(app.getHttpServer())
+        .patch(`/vehicle/${createdVehicle.id}`)
+        .send(updateVehicleDto)
+        .expect(400);
+      expect(response.body.message).toContain('model should not be empty');
+    });
+
+    it('should return 400 if state is not sold/quoted/selling', async () => {
+      const createVehicleDto = {
+        make: 'Tesla',
+        model: 'Model S',
+      };
+      const { body: createdVehicle } = await request(app.getHttpServer())
+        .post('/vehicle')
+        .send(createVehicleDto)
+        .expect(201);
+
+      const updateVehicleDto = {
+        make: 'Fiat',
+        model: 'bla',
+        state: 'resold',
+      };
+
+      const response = await request(app.getHttpServer())
+        .patch(`/vehicle/${createdVehicle.id}`)
+        .send(updateVehicleDto)
+        .expect(400);
+      expect(response.body.message).toContain(
+        'state must be one of the following values: quoted, selling, sold',
+      );
     });
   });
 
