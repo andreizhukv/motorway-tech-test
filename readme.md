@@ -67,9 +67,10 @@ $ npm run test:cov
 ## Missing (nice to add)
 
 - Logging and monitoring. Especially logging with custom ExceptionFilter
-- Proper pagination support for GET /vehicle endpoint
+- Proper pagination support for GET /vehicle endpoint. Highly likely good option will be cursor-based pagination due to the high number of updates.
 - Migrations
 - OpenAPI(swagger)
 - Mock factory based on faker library to easily create test entities
 - Seeding data to database on startup. Leveraging mock factory from previous point will be really useful
 - Limit column length for make + model
+- Containerised local env
