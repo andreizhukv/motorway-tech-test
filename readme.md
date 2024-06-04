@@ -1,30 +1,15 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+# Tech Challenge
 
 ## Description
+Tech challenge can be found [here](https://motorway.notion.site/Senior-Backend-Engineer-Tech-Challenge-6e59f0edc5d942b0a591a2b1aa248b3f)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+
+## Introduction
+
+I haven't used before nestjs and typeorm. So it was a good learning experience.
+Why did I choose nestjs? I wanted to try this popular node.js framework.
+Why did I choose typeorm as ORM? I love typescript and it is one of the popular choices with typescript support.
+
 
 ## Installation
 
@@ -58,16 +43,27 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## Support
+## Some explanations and reasoning
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- I decided to discard provided database and start fresh with typeorm. Leveraging typeorm synchronise option in local development was faster and easier for me.
+- The next question in my mind was about RESTFUL vs GRAPHQL style. I chose RESTFUL approach but it could have been achieved with either of options.
+- I added one to many relationship between Vehicle and StateLog(Foreign key is added and thus it is faster join).
+- When Vehicle is created then StateLog is created as well. I decided to wrap it in transaction so StateLog entity will be always relevant. I did the same for update. Without transaction it is possible that vehicle will be created and after that node will be killed right before state log creation.
+- I don't think that it is useful to add caching for queries by vehicleId and timestamp. The only case when it will be useful is when there will be a lot of requests with the same vehicleId and the same timestamp. But I assume that it is not the case thus caching is not good here.
+- Where will be caching useful? Highly likely in real world you ask your Search Database to find all the _red bmws_ and Search Database will return a list of vehicleIds. Thus it is a frequent pattern of fetching from vehicle service a list of vehicles by ids. And for this caching will be very useful.
+- e2e tests use separate postgres container which is destroyed after run(destroyed with its volume). The choice was made due to its simplicity and isolation.
+- I haven't covered everything by tests as I only wanted to cover main parts. e2e tests can be more thorough for example.
+- Committing .env.local is usually bad but I did it to save reviewer's time
+- The node version in .nvmrc is just my default (18 something). In real life scenario I would think of choosing a newer one.
 
-## Stay in touch
+## Missing (nice to add)
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- Logging and monitoring. Especially logging with custom ExceptionFilter
+- Proper pagination support for GET /vehicle endpoint
+- Migrations
+- OpenAPI(swagger)
+- Seeding of data to database on startup
+- Limit column length for make + model
 
-## License
 
-Nest is [MIT licensed](LICENSE).
+
